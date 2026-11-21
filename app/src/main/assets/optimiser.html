@@ -1,0 +1,308 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Optimiser</title>
+<style>
+@font-face{font-family:Newsreader;font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/newsreader.ttf)}
+:root{--cyan:#00D4FF;--text:#E9EDF4;--sub:#9AA4B5;--lb:#C5CDDA;--green:#6EE7B7;--red:#FCA5A5;--amber:#00D4FF;--card:linear-gradient(180deg,#0D1014,#06080A)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#000;color:var(--text);font-family:Newsreader,'Iowan Old Style','Palatino Linotype',Georgia,serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;color:inherit;background:none;border:0;padding:0}
+input{font-family:inherit;color:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+svg{display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#app{max-width:560px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+#main{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 16px 24px}
+.hd{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top,0px)) 8px 6px 4px;min-height:60px;border-bottom:1px solid rgba(0,212,255,.18)}
+.hd h1{flex:1;min-width:0;margin:0;font-size:22px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd.home{padding-left:16px;border:0}.hd.home h1{font-size:32px}
+.ib{display:flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;border-radius:12px;color:var(--lb)}
+.ib:active{background:rgba(0,212,255,.12)}.ib svg{width:22px;height:22px}
+.card{border:1px solid transparent;border-radius:18px;padding:16px;margin:12px 0 0;background:var(--card) padding-box,linear-gradient(160deg,rgba(0,212,255,.4),rgba(255,255,255,.07) 40%,rgba(255,255,255,.03) 65%,rgba(0,212,255,.18)) border-box}
+.card .t{font-size:15px;font-weight:600;color:var(--lb);display:flex;justify-content:space-between}
+.card .t small{font-weight:500;color:var(--sub);font-size:13.5px}
+.big{margin-top:10px;font-size:30px;font-weight:700;color:#fff}.big small{font-size:15px;font-weight:500;color:var(--sub);margin-left:6px}
+.bar{height:8px;margin-top:10px;border-radius:5px;background:#2A3140;overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,#0098C0,var(--cyan));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bar.warn i{background:linear-gradient(90deg,#000040,var(--amber))}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:58px;margin-top:16px;font-size:18px;font-weight:700;color:#04202B;background:linear-gradient(180deg,#38E1FF,#00B5DC);border-radius:16px;box-shadow:0 8px 28px rgba(0,212,255,.25)}
+.cta svg{width:22px;height:22px}.cta:active{filter:brightness(.9)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 4px 12px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.07);font-size:14.5px;font-weight:600}
+.tile:active{background:#10161C}.tile small{margin-top:-4px;font-size:12.5px;font-weight:500;color:var(--sub);text-align:center;padding:0 4px}
+.ico{display:flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;border-radius:11px;color:#fff}.ico svg{width:21px;height:21px}
+.c1{background:#2F7BF5}.c2{background:#2FB45A}.c3{background:#F08A1C}
+.note{margin:12px 2px 0;font-size:13.5px;line-height:1.5;color:var(--sub)}
+.warnbox{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(0,212,255,.4);background:rgba(0,212,255,.07);font-size:14px;line-height:1.45;color:#F3E3A6}
+.warnbox button{display:block;margin-top:10px;padding:9px 14px;border-radius:10px;border:1px solid rgba(0,212,255,.5);font-weight:600;color:var(--amber)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:46px;padding:0 14px;font-size:15px;font-weight:600;color:#BFF3FF;background:linear-gradient(180deg,#0B4660,#06222F);border:1px solid rgba(0,212,255,.45);border-radius:12px}
+.btn.sec{color:var(--text);background:#0C0E12;border-color:rgba(255,255,255,.12)}.btn.red{color:var(--red);background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4)}
+.btn[disabled]{opacity:.4}
+.pickbar{flex:none;display:flex;gap:10px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(0,212,255,.18);background:#050607}
+.prog{padding:70px 20px 20px;text-align:center}
+.ring{position:relative;width:170px;height:170px;margin:0 auto}
+.ring svg{width:170px;height:170px;transform:rotate(-90deg);stroke-width:10}
+.ring .bgc{stroke:#1C2330}.ring .fg{stroke:var(--cyan);transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)}
+.ring.spin svg{animation:sp 1.4s linear infinite}@keyframes sp{to{transform:rotate(270deg)}}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:32px;font-weight:700}
+.ring .mid small{font-size:13px;color:var(--sub);font-weight:500}
+.prog p{margin:18px 0 0;color:var(--sub);font-size:15px}.prog b{color:#fff}
+.cat{margin-top:10px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+.cat.on{border-color:rgba(0,212,255,.4)}
+.cat .h{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;width:100%;text-align:left}
+.cat .tx{flex:1;min-width:0}.cat .tx b{display:block;font-size:16px;font-weight:600}
+.cat .tx span{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--sub)}
+.cat .sz{font-size:15px;font-weight:600;color:var(--cyan);font-variant-numeric:tabular-nums;text-align:right}.cat .sz small{display:block;font-size:12px;font-weight:500;color:var(--sub)}
+.chk{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid #4A5568;display:flex;align-items:center;justify-content:center;color:transparent}
+.chk svg{width:15px;height:15px;stroke-width:3}.chk.on{background:var(--cyan);border-color:var(--cyan);color:#04202B}
+.tag{display:inline-block;margin-top:5px;padding:1px 8px;border-radius:7px;font-size:11.5px;font-weight:600;background:rgba(110,231,183,.1);color:var(--green)}
+.tag.bin{background:rgba(0,212,255,.1);color:var(--amber)}
+.exp{flex:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--sub)}.exp svg{width:18px;height:18px;transition:transform .2s}.exp.open svg{transform:rotate(180deg)}
+.items{border-top:1px solid rgba(255,255,255,.07);max-height:340px;overflow-y:auto}
+.it{display:flex;align-items:center;gap:10px;padding:8px 12px 8px 14px;width:100%;text-align:left;border-bottom:1px solid rgba(255,255,255,.04)}
+.it .tx{flex:1;min-width:0}.it .tx b{display:block;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.it .tx span{display:block;font-size:11.5px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:left}
+.it .s{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+.more{padding:10px 14px;font-size:13px;color:var(--sub)}
+.srch{width:100%;height:44px;margin-top:12px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0A0C10;font-size:15px}
+.seg{display:flex;gap:8px;margin-top:10px}.seg button{flex:1;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);font-size:13.5px;font-weight:600;color:var(--sub)}.seg button.on{color:var(--cyan);border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.08)}
+.app{display:flex;align-items:center;gap:12px;width:100%;padding:9px 2px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
+.av{flex:none;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff}
+.app .tx{flex:1;min-width:0}.app .tx b{display:block;font-size:15.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app .tx span{display:block;font-size:12.5px;color:var(--sub)}
+.app .s{font-size:14px;font-weight:600;color:var(--cyan);font-variant-numeric:tabular-nums}
+.empty{padding:50px 20px;text-align:center;color:var(--sub);font-size:15.5px;line-height:1.5}
+.good{padding:50px 20px 10px;text-align:center}.good .okc{width:84px;height:84px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(110,231,183,.12);color:var(--green)}
+.good .okc svg{width:44px;height:44px;stroke-width:2.6}.good h2{margin:18px 0 4px;font-size:30px}.good p{margin:0;color:var(--sub);font-size:15.5px;line-height:1.5}
+.cmp{display:flex;gap:10px;margin-top:20px;text-align:left}.cmp>div{flex:1;padding:12px;border-radius:14px;background:#0A0D11;border:1px solid rgba(255,255,255,.08)}.cmp small{display:block;color:var(--sub);font-size:12.5px}.cmp b{font-size:20px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:20}.scrim.show{display:flex}
+.sheet{width:100%;max-width:560px;max-height:84%;overflow-y:auto;border-radius:22px 22px 0 0;background:#0B0E12;border:1px solid rgba(0,212,255,.3);border-bottom:0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:0 0 8px;font-size:20px}.sheet p{margin:0 0 12px;font-size:14.5px;line-height:1.5;color:var(--lb)}.sheet .two{display:flex;gap:10px;margin-top:14px}
+.sheet ul{margin:0 0 6px;padding-left:20px;font-size:14.5px;line-height:1.55;color:var(--lb)}
+
+</style></head><body><div id="app"><div id="hdr"></div><div id="main"></div><div id="foot"></div></div>
+<div class="scrim" id="scrim" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
+<script>
+const I={
+ back:'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+ bolt:'<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+ broom:'<svg viewBox="0 0 24 24"><path d="M19 3l-7 8M9 11l4 4M4 20c2-1 4-3 5-9l4 4c-6 1-8 3-9 5z"/></svg>',
+ apps:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>',
+ chev:'<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+ ck:'<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>',
+ scan:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+ folder:'<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>'
+};
+const mock=!window.PragonOpt;
+let T0=Date.now();
+const B=window.PragonOpt||{
+ home:()=>JSON.stringify({perm:true,a11y:true,usage:false,sTotal:128e9,sFree:41e9,mTotal:8e9,mFree:2.6e9,freedTotal:3.1e9,lastClean:Date.now()-86400000,lastFreed:412e6,lastBoost:0,lastCache:0}),
+ close(){alert('(app) closes')},askAllFiles(){alert('(app) All files access')},askUsage(){alert('(app) Usage access')},askA11y(){alert('(app) Accessibility')},
+ startScan(){T0=Date.now();return ''},cancelScan(){},
+ scanState:()=>{const t=(Date.now()-T0)/1000;return JSON.stringify({running:t<2.2,done:t>=2.2,phase:t<1?'Scanning files':'Comparing files',files:Math.round(t*9000),found:Math.round(t*90e6),error:'',at:Date.now()})},
+ scanResult:()=>JSON.stringify({cats:[
+  {id:'own',t:"Pragon's own cache",desc:'Temporary files made by Pragon itself.',safe:true,bin:false,bytes:18e6,count:1,more:0,items:[{p:'/data/cache',s:18e6,d:true,o:'folder'}]},
+  {id:'temp',t:'Temp and log files',desc:'Leftover .tmp, .log and crash files that apps forgot to remove.',safe:true,bin:false,bytes:212e6,count:3,more:0,items:[{p:'/storage/emulated/0/Download/app.log',s:120e6,d:false,o:''},{p:'/storage/emulated/0/x/cache.tmp',s:80e6,d:false,o:''},{p:'/storage/emulated/0/y/z.tmp',s:12e6,d:false,o:''}]},
+  {id:'emptydirs',t:'Empty folders',desc:'Folders with nothing in them or only more empty folders.',safe:true,bin:false,bytes:0,count:2,more:0,items:[{p:'/storage/emulated/0/Old/a',s:0,d:true,o:'folder'},{p:'/storage/emulated/0/Old/b',s:0,d:true,o:'folder'}]},
+  {id:'apks',t:'Old installers (APK)',desc:'Install files you already used. Sent to Recently deleted, so you can bring them back.',safe:false,bin:true,bytes:260e6,count:2,more:0,items:[{p:'/storage/emulated/0/Download/app-v1.apk',s:130e6,d:false,o:''},{p:'/storage/emulated/0/Download/app-v2.apk',s:130e6,d:false,o:''}]},
+  {id:'dups',t:'Duplicate files',desc:'Exact copies. The oldest copy of each is kept; the extra copies go to Recently deleted.',safe:false,bin:true,bytes:340e6,count:2,more:0,items:[{p:'/storage/emulated/0/DCIM/IMG_1(1).jpg',s:4e6,d:false,o:'/storage/emulated/0/DCIM/IMG_1.jpg'},{p:'/storage/emulated/0/Download/clip(1).mp4',s:336e6,d:false,o:'/storage/emulated/0/Movies/clip.mp4'}]},
+  {id:'big',t:'Large files (100 MB+)',desc:'Your biggest files. Nothing is picked for you: choose what you do not need.',safe:false,bin:true,bytes:1.4e9,count:2,more:0,items:[{p:'/storage/emulated/0/Movies/trip.mp4',s:900e6,d:false,o:''},{p:'/storage/emulated/0/Movies/old.mkv',s:500e6,d:false,o:''}]}]}),
+ clean:r=>JSON.stringify({bytes:250e6,count:6,failed:0}),
+ apps:()=>JSON.stringify({usage:true,a11y:true,apps:[['com.instagram.android','Instagram',820e6],['com.whatsapp','WhatsApp',410e6],['com.google.chrome','Chrome',260e6],['com.spotify.music','Spotify',90e6],['com.pragon.mobile','Pragon',18e6],['com.x.y','Calculator',0]].map(a=>({pkg:a[0],n:a[1],cache:a[2],data:1e8,app:5e7,sys:false}))}),
+ clearCaches:()=>{T0=Date.now();return ''},cancelCache(){},
+ cacheState:()=>{const t=(Date.now()-T0)/1000;return JSON.stringify({running:t<3,total:5,done:Math.min(5,Math.floor(t*1.8)),cleared:Math.min(4,Math.floor(t*1.5)),skipped:0,failed:0,current:'Chrome',message:t>=3?'Done.':'',finished:t>=3})},
+ appInfo(p){alert('(app) App info '+p)},
+ mem:()=>JSON.stringify({total:8e9,avail:2.6e9}),keepList:()=>'["com.spotify.music"]',setKeep(){},
+ boost:()=>JSON.stringify({before:2.6e9,after:3.4e9,total:8e9,asked:41,running:12}),openFiles(){alert('(app) My Files')}
+};
+const J=s=>{try{return JSON.parse(s)}catch(e){return {}}};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
+function fmt(b){b=+b||0;if(b<1024)return b+' B';const u=['KB','MB','GB','TB'];let i=-1;do{b/=1024;i++}while(b>=1024&&i<3);return (b>=100||i===0?b.toFixed(0):b.toFixed(1))+' '+u[i]}
+function ago(ts){if(!ts)return 'never';const m=Math.round((Date.now()-ts)/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';const d=Math.round(h/24);return d+(d===1?' day':' days')+' ago'}
+const leaf=p=>p.split('/').filter(Boolean).pop()||p;
+const dirOf=p=>{const a=p.split('/');a.pop();return a.join('/')};
+
+let H={},scr='home',cats=[],on={},exc={},open={},polling=null,appsData=null,csel={},cq='',chide=false,csort='cache';
+
+function header(title,home){
+ $('hdr').innerHTML=home?'<div class="hd home"><h1>Optimiser</h1><button class="ib" aria-label="Close" onclick="B.close()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'
+ :'<div class="hd"><button class="ib" aria-label="Back" onclick="optBack()">'+I.back+'</button><h1>'+esc(title)+'</h1></div>';
+}
+function foot(h){$('foot').innerHTML=h||''}
+function go(s){stopPoll();scr=s;({home:vHome,junk:vJunk,cache:vCache,boost:vBoost})[s]()}
+let cacheRun=false;
+function resumeCache(){scr='cache';stopPoll();$('main').innerHTML='<div class="prog"><div id="rg"></div><p id="pp">Working…</p></div>';foot('<div class="pickbar"><button class="btn red" onclick="B.cancelCache()">Stop</button></div>');polling=setInterval(pollCache,500);pollCache()}
+window.optGo=s=>{if(s==='cache'&&cacheRun)resumeCache();else go(s)};
+window.optResume=()=>{if(cacheRun&&scr==='cache'&&!polling)resumeCache();else if(scr==='home')vHome()};
+window.optBack=function(){
+ if($('scrim').classList.contains('show')){closeSheet();return true}
+ if(scr!=='home'){if(scr==='junk'&&J(B.scanState()).running)B.cancelScan();go('home');return true}
+ return false};
+function stopPoll(){if(polling){clearInterval(polling);polling=null}}
+
+// ───────────── sheets ─────────────
+function sheet(h){$('sheet').innerHTML=h;$('scrim').classList.add('show')}
+function closeSheet(){$('scrim').classList.remove('show')}
+
+// ───────────── HOME ─────────────
+function ringHtml(pct,mid,sub,spin){const C=2*Math.PI*75;return '<div class="ring'+(spin?' spin':'')+'"><svg viewBox="0 0 170 170"><circle class="bgc" cx="85" cy="85" r="75"/><circle class="fg" cx="85" cy="85" r="75" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-pct))+'"/></svg><div class="mid">'+mid+'<small>'+sub+'</small></div></div>'}
+function vHome(){
+ header('',true);foot('');
+ H=J(B.home());
+ const su=H.sTotal-H.sFree,sp=H.sTotal?su/H.sTotal:0,mu=H.mTotal-H.mFree,mp=H.mTotal?mu/H.mTotal:0;
+ $('main').innerHTML=
+ '<div class="card"><div class="t">Storage<small>'+fmt(H.sFree)+' free</small></div><div class="big">'+fmt(su)+'<small>of '+fmt(H.sTotal)+'</small></div><div class="bar'+(sp>.9?' warn':'')+'"><i style="width:'+(sp*100)+'%"></i></div></div>'+
+ '<div class="card"><div class="t">Memory (RAM)<small>'+fmt(H.mFree)+' free</small></div><div class="big">'+fmt(mu)+'<small>of '+fmt(H.mTotal)+' in use</small></div><div class="bar'+(mp>.85?' warn':'')+'"><i style="width:'+(mp*100)+'%"></i></div></div>'+
+ '<button class="cta" onclick="go(\'junk\')">'+I.scan+'Scan for junk</button>'+
+ '<div class="tiles">'+
+ '<button class="tile" onclick="go(\'junk\')"><span class="ico c1">'+I.broom+'</span>Junk<small>temp, empty, duplicates</small></button>'+
+ '<button class="tile" onclick="go(\'cache\')"><span class="ico c2">'+I.apps+'</span>App cache<small>clear per app</small></button>'+
+ '<button class="tile" onclick="go(\'boost\')"><span class="ico c3">'+I.bolt+'</span>Boost<small>free memory</small></button></div>'+
+ '<p class="note">Cleaned so far: <b>'+fmt(H.freedTotal)+'</b>'+(H.lastClean?' · last clean '+ago(H.lastClean)+' ('+fmt(H.lastFreed)+')':'')+'. Everything runs on this phone and nothing is uploaded. Duplicates, installers and large files go to <b>Recently deleted</b> in My Files for 30 days, so you can bring them back.</p>';
+}
+
+// ───────────── JUNK ─────────────
+function vJunk(){
+ header('Junk cleaner');
+ H=J(B.home());
+ if(!H.perm){
+  foot('');
+  $('main').innerHTML='<div class="empty">The junk cleaner looks through your files, so Android needs to give Pragon <b>All files access</b> once.<br><br><button class="btn" onclick="B.askAllFiles()">Allow All files access</button></div>';return}
+ const r=B.startScan();
+ if(r==='perm'){go('home');return}
+ foot('<div class="pickbar"><button class="btn sec" onclick="optBack()">Cancel</button></div>');
+ $('main').innerHTML='<div class="prog"><div id="rg"></div><p id="pp">Starting…</p></div>';
+ polling=setInterval(pollScan,450);pollScan();
+}
+function pollScan(){
+ const s=J(B.scanState());
+ const rg=$('rg');if(rg)rg.innerHTML=ringHtml(.3,'…',' ',true);
+ const pp=$('pp');if(pp)pp.innerHTML=esc(s.phase||'Scanning')+'<br><b>'+(s.files||0).toLocaleString()+'</b> files checked · <b>'+fmt(s.found)+'</b> found so far';
+ if(s.done&&!s.running){stopPoll();if(s.error){$('main').innerHTML='<div class="empty">The scan stopped: '+esc(s.error)+'</div>';return}
+  const res=J(B.scanResult());cats=res.cats||[];on={};exc={};open={};
+  cats.forEach(c=>{on[c.id]=!!c.safe;exc[c.id]=new Set()});
+  renderJunk()}
+}
+function catSel(c){ // [bytes,count] of what is currently ticked
+ if(!on[c.id])return [0,0];
+ let b=c.bytes,n=c.count;exc[c.id].forEach(p=>{const it=c.items.find(x=>x.p===p);if(it){b-=it.s;n--}});return [Math.max(0,b),Math.max(0,n)]}
+function totals(){let junk=0,bin=0,n=0;cats.forEach(c=>{const [b,k]=catSel(c);n+=k;if(c.id==='bin')junk+=b;else if(c.bin)bin+=b;else junk+=b});return {junk,bin,n}}
+function renderJunk(){
+ if(!cats.length){foot('<div class="pickbar"><button class="btn" onclick="go(\'home\')">Done</button></div>');
+  $('main').innerHTML='<div class="good"><div class="okc">'+I.ck+'</div><h2>Nothing to clean</h2><p>No junk found. Your storage is tidy.</p></div>';return}
+ const t=totals(),all=cats.reduce((a,c)=>a+c.bytes,0);
+ let h='<div class="card"><div class="t">Found<small>'+cats.length+' groups</small></div><div class="big">'+fmt(all)+'<small>can be cleaned</small></div><div class="note" style="margin:6px 0 0">Ticked: <b>'+fmt(t.junk+t.bin)+'</b>. Safe groups are ticked for you; tap a group to see its files.</div></div>';
+ cats.forEach(c=>{
+  const [b,k]=catSel(c),o=!!open[c.id];
+  h+='<div class="cat'+(on[c.id]?' on':'')+'"><div class="h"><button class="chk'+(on[c.id]?' on':'')+'" aria-label="Select '+esc(c.t)+'" onclick="tg(\''+c.id+'\')">'+I.ck+'</button>'+
+   '<button class="tx" style="text-align:left" onclick="tg(\''+c.id+'\')"><b>'+esc(c.t)+'</b><span>'+esc(c.desc)+'</span>'+(c.id==='bin'?'<span class="tag bin">deleted for good</span>':c.bin?'<span class="tag bin">goes to Recently deleted</span>':'<span class="tag">safe to delete</span>')+'</button>'+
+   '<div class="sz">'+fmt(c.bytes)+'<small>'+c.count.toLocaleString()+(c.count===1?' item':' items')+'</small></div>'+
+   '<button class="exp'+(o?' open':'')+'" aria-label="Show files" onclick="op(\''+c.id+'\')">'+I.chev+'</button></div>';
+  if(o){h+='<div class="items">';
+   c.items.forEach((it,i)=>{const x=on[c.id]&&!exc[c.id].has(it.p);
+    h+='<button class="it" onclick="ti(\''+c.id+'\','+i+')"><span class="chk'+(x?' on':'')+'">'+I.ck+'</span><span class="tx"><b>'+esc(leaf(it.p))+'</b><span>'+esc(it.o&&it.o.startsWith('/')?'same as '+leaf(it.o)+' · ':'')+esc(dirOf(it.p).replace('/storage/emulated/0','Internal'))+'</span></span><span class="s">'+(it.s?fmt(it.s):'')+'</span></button>'});
+   if(c.more>0)h+='<div class="more">+ '+c.more.toLocaleString()+' more not listed (they are included when the group is ticked)</div>';
+   h+='</div>'}
+  h+='</div>'});
+ $('main').innerHTML=h;
+ foot('<div class="pickbar"><button class="btn" '+(t.n?'':'disabled')+' onclick="askClean()">Clean '+fmt(t.junk+t.bin)+'</button></div>');
+}
+function tg(id){on[id]=!on[id];if(on[id])exc[id]=new Set();renderJunk()}
+function op(id){open[id]=!open[id];const y=$('main').scrollTop;renderJunk();$('main').scrollTop=y}
+function ti(id,i){const c=cats.find(x=>x.id===id),p=c.items[i].p;if(!on[id]){on[id]=true;exc[id]=new Set(c.items.map(x=>x.p));exc[id].delete(p)}else if(exc[id].has(p))exc[id].delete(p);else exc[id].add(p);const y=$('main').scrollTop;renderJunk();$('main').scrollTop=y}
+function askClean(){
+ const t=totals();
+ const binCat=cats.find(c=>c.id==='bin'&&on.bin);
+ sheet('<h3>Clean now?</h3><ul>'+(t.junk?'<li><b>'+fmt(t.junk)+'</b> is deleted for good'+(binCat?' (includes the Recently deleted bin)':'')+'.</li>':'')+(t.bin?'<li><b>'+fmt(t.bin)+'</b> moves to Recently deleted in My Files, where it stays 30 days.</li>':'')+'</ul><div class="two"><button class="btn sec" onclick="closeSheet()">Not yet</button><button class="btn" onclick="doClean()">Clean</button></div>');
+}
+function doClean(){
+ closeSheet();
+ const req=cats.filter(c=>on[c.id]).map(c=>({id:c.id,exclude:[...exc[c.id]]}));
+ foot('');$('main').innerHTML='<div class="prog"><div id="rg"></div><p>Cleaning…</p></div>';$('rg').innerHTML=ringHtml(.3,'…',' ',true);
+ setTimeout(()=>{
+  const r=J(B.clean(JSON.stringify(req)));
+  foot('<div class="pickbar"><button class="btn sec" onclick="go(\'junk\')">Scan again</button><button class="btn" onclick="go(\'home\')">Done</button></div>');
+  $('main').innerHTML='<div class="good"><div class="okc">'+I.ck+'</div><h2>'+fmt(r.bytes)+' freed</h2><p>'+(r.count||0).toLocaleString()+' items cleaned'+(r.failed?' · '+r.failed+' could not be removed':'')+'.</p></div>'+
+   '<p class="note" style="text-align:center">Files moved to Recently deleted can be restored from My Files for 30 days.</p><button class="btn sec" style="margin-top:12px" onclick="B.openFiles()">Open My Files</button>';
+ },60);
+}
+
+// ───────────── APP CACHE ─────────────
+function vCache(){header('App cache');foot('');$('main').innerHTML='<div class="empty">Loading apps…</div>';loadApps()}
+function loadApps(){
+ appsData=J(B.apps());
+ if(!Object.keys(csel).length&&appsData.usage)(appsData.apps||[]).forEach(a=>{if(a.cache>=5*1048576)csel[a.pkg]=1});
+ renderCache();
+}
+function hue(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return 'hsl('+h+',45%,38%)'}
+function renderCache(){
+ const d=appsData||{apps:[]};let list=(d.apps||[]).slice();
+ if(chide)list=list.filter(a=>!a.sys);
+ if(cq)list=list.filter(a=>a.n.toLowerCase().includes(cq));
+ list.sort(csort==='name'?(a,b)=>a.n.localeCompare(b.n):(a,b)=>b.cache-a.cache||a.n.localeCompare(b.n));
+ const keys=Object.keys(csel).filter(k=>csel[k]);
+ const tot=(d.apps||[]).filter(a=>csel[a.pkg]&&a.cache>0).reduce((s,a)=>s+a.cache,0);
+ let h='';
+ if(!d.usage)h+='<div class="warnbox">To show how big each app\'s cache is, Android needs <b>Usage access</b> for Pragon. You can still clear caches without it, but then you pick apps blind.<button onclick="B.askUsage()">Allow Usage access</button></div>';
+ if(!d.a11y)h+='<div class="warnbox">Android does not let one app empty another app\'s cache. Pragon does it by opening each app\'s Storage screen and pressing <b>Clear cache</b> for you, which needs Pragon\'s <b>accessibility</b> switched on.<button onclick="B.askA11y()">Open Accessibility settings</button></div>';
+ h+='<input class="srch" id="cq" placeholder="Search apps" autocomplete="off" value="'+esc(cq)+'" oninput="cq=this.value.toLowerCase();renderCache(true)">';
+ h+='<div class="seg"><button class="'+(csort==='cache'?'on':'')+'" onclick="csort=\'cache\';renderCache()">Biggest cache</button><button class="'+(csort==='name'?'on':'')+'" onclick="csort=\'name\';renderCache()">Name</button><button class="'+(chide?'on':'')+'" onclick="chide=!chide;renderCache()">Hide system</button></div>';
+ h+='<div class="seg"><button onclick="cAll(true)">Select all shown</button><button onclick="cAll(false)">Select none</button></div>';
+ if(!list.length)h+='<div class="empty">No apps match.</div>';
+ list.forEach(a=>{h+='<button class="app" onclick="cTog(\''+esc(a.pkg)+'\')"><span class="av" style="background:'+hue(a.pkg)+'">'+esc((a.n[0]||'?').toUpperCase())+'</span><span class="tx"><b>'+esc(a.n)+'</b><span>'+(a.cache>=0?'Data '+fmt(a.data):esc(a.pkg))+'</span></span><span class="s">'+(a.cache>=0?fmt(a.cache):'')+'</span><span class="chk'+(csel[a.pkg]?' on':'')+'">'+I.ck+'</span></button>'});
+ const y=$('main').scrollTop;const keepFocus=document.activeElement&&document.activeElement.id==='cq';
+ $('main').innerHTML=h;$('main').scrollTop=y;
+ if(keepFocus){const q=$('cq');q.focus();q.setSelectionRange(q.value.length,q.value.length)}
+ foot('<div class="pickbar"><button class="btn" '+(keys.length&&d.a11y?'':'disabled')+' onclick="askCache()">Clear cache of '+keys.length+(keys.length===1?' app':' apps')+(d.usage&&tot?' · '+fmt(tot):'')+'</button></div>');
+}
+function cTog(p){csel[p]=csel[p]?0:1;renderCache()}
+function cAll(v){const d=appsData.apps||[];d.filter(a=>(!chide||!a.sys)&&(!cq||a.n.toLowerCase().includes(cq))).forEach(a=>csel[a.pkg]=v?1:0);renderCache()}
+function askCache(){
+ const n=Object.keys(csel).filter(k=>csel[k]).length;
+ sheet('<h3>Clear cache of '+n+(n===1?' app':' apps')+'?</h3><p>Pragon will open each app\'s Settings screen for a few seconds and press <b>Clear cache</b>. It takes about '+Math.max(5,n*4)+' seconds. <b>Please do not touch the phone</b> while it runs; you can press Stop on the screen at any time.</p><p>Only the cache is removed. Logins, chats and downloads are not touched.</p><div class="two"><button class="btn sec" onclick="closeSheet()">Not yet</button><button class="btn" onclick="doCache()">Start</button></div>');
+}
+function doCache(){
+ closeSheet();
+ const keys=Object.keys(csel).filter(k=>csel[k]);
+ const r=B.clearCaches(JSON.stringify(keys));
+ if(r){sheet('<h3>Could not start</h3><p>'+esc(r)+'</p><div class="two"><button class="btn" onclick="closeSheet()">OK</button></div>');return}
+ foot('<div class="pickbar"><button class="btn red" onclick="B.cancelCache()">Stop</button></div>');
+ $('main').innerHTML='<div class="prog"><div id="rg"></div><p id="pp">Starting…</p></div>';
+ cacheRun=true;polling=setInterval(pollCache,500);pollCache();
+}
+function pollCache(){
+ const s=J(B.cacheState());
+ const rg=$('rg');if(rg)rg.innerHTML=ringHtml(s.total?s.done/s.total:0,s.done+'/'+s.total,'apps',false);
+ const pp=$('pp');if(pp)pp.innerHTML=(s.current?'Clearing <b>'+esc(s.current)+'</b>':'Working…')+'<br><b>'+s.cleared+'</b> cleared · '+s.skipped+' already empty · '+s.failed+' not possible';
+ if(s.finished&&!s.running){stopPoll();cacheRun=false;
+  foot('<div class="pickbar"><button class="btn" onclick="csel={};go(\'cache\')">Done</button></div>');
+  $('main').innerHTML='<div class="good"><div class="okc">'+I.ck+'</div><h2>'+s.cleared+' '+(s.cleared===1?'app':'apps')+' cleared</h2><p>'+esc(s.message)+'</p><p style="margin-top:8px">'+s.skipped+' already had an empty cache'+(s.failed?' · '+s.failed+' could not be done':'')+'.</p></div>'}
+}
+
+// ───────────── BOOST ─────────────
+function vBoost(){
+ header('Boost');
+ const m=J(B.mem()),used=m.total-m.avail,p=m.total?used/m.total:0;
+ $('main').innerHTML='<div class="prog" style="padding-top:36px"><div id="rg">'+ringHtml(p,Math.round(p*100)+'%','RAM in use',false)+'</div><p><b>'+fmt(m.avail)+'</b> free of '+fmt(m.total)+'</p></div>'+
+ '<p class="note">Boost asks Android to end apps running in the background, except Pragon, your launcher, keyboard, phone app and any app you protect. Android restarts some of them by itself, so the gain can be small, and the apps may start a little slower next time.</p>'+
+ '<button class="btn sec" style="margin-top:14px" onclick="keepSheet()">Protected apps</button>';
+ foot('<div class="pickbar"><button class="btn" id="bb" onclick="doBoost()">Boost now</button></div>');
+}
+function doBoost(){
+ const b=$('bb');b.disabled=true;b.textContent='Boosting…';$('rg').innerHTML=ringHtml(.3,'…',' ',true);
+ setTimeout(()=>{
+  const r=J(B.boost()),gain=r.after-r.before,fp=1-r.after/r.total;
+  $('rg').innerHTML='';
+  $('main').innerHTML='<div class="good"><div class="okc">'+I.ck+'</div><h2>'+(gain>1048576?fmt(gain)+' freed':'Already lean')+'</h2><p>'+(gain>1048576?'Android ended the background apps.':'Almost nothing was running that could be ended.')+'</p></div>'+
+   '<div class="cmp"><div><small>Free before</small><b>'+fmt(r.before)+'</b></div><div><small>Free now</small><b>'+fmt(r.after)+'</b></div></div><p class="note" style="text-align:center">Asked '+(r.asked||0)+' apps to stop.</p>';
+  foot('<div class="pickbar"><button class="btn" onclick="go(\'home\')">Done</button></div>');
+ },50);
+}
+function keepSheet(){
+ const keep=new Set(J('{"k":'+B.keepList()+'}').k||[]);
+ const d=J(B.apps()).apps||[];d.sort((a,b)=>a.n.localeCompare(b.n));
+ window._keep=keep;
+ sheet('<h3>Protected apps</h3><p>Boost never closes these (music players, navigation, chat apps you wait on).</p>'+d.map(a=>'<button class="app" data-k="'+esc(a.pkg)+'" onclick="kTog(this)"><span class="av" style="background:'+hue(a.pkg)+'">'+esc((a.n[0]||'?').toUpperCase())+'</span><span class="tx"><b>'+esc(a.n)+'</b></span><span class="chk'+(keep.has(a.pkg)?' on':'')+'">'+I.ck+'</span></button>').join('')+'<div class="two"><button class="btn" onclick="closeSheet()">Done</button></div>');
+}
+function kTog(el){const p=el.dataset.k,c=el.querySelector('.chk'),v=!c.classList.contains('on');c.classList.toggle('on',v);B.setKeep(p,v)}
+
+// ───────────── start ─────────────
+const hash=(location.hash||'').slice(1);
+if(['junk','cache','boost'].includes(hash))go(hash);else go('home');
+</script></body></html>

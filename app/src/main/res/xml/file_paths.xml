@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="pics" path="pics/" />
+    <cache-path name="exports" path="exports/" />
+    <!-- v14: File Dock copies, so they can be dragged out and shared -->
+    <files-path name="dock" path="dock/" />
+    <!-- v14: My Files opens and shares files from anywhere on shared storage -->
+    <root-path name="storage" path="" />
+</paths>

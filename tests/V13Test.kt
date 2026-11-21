@@ -1,0 +1,50 @@
+import com.pragon.mobile.*
+
+var failed = 0; var passed = 0
+fun check(said: String, action: String?, value: String? = null) {
+    val a = QuickVoice.parse(said)
+    val ok = if (action == null) a == null else a != null && a.action == action && (value == null || a.value == value)
+    if (!ok) { println("FAIL: '$said' -> ${a?.action}/${a?.value} (wanted $action/$value)"); failed++ } else passed++
+}
+
+fun main() {
+    check("play music", "music", "play")
+    check("pause the music", "music", "pause")
+    check("next song", "music", "next")
+    check("previous song", "music", "previous")
+    check("shuffle on", "music", "shuffle:on")
+    check("repeat one", "music", "repeat:one")
+    check("what's playing", "music", "status")
+    check("turn on the music player", "music", "on")
+    check("play despacito from my phone", "music", "play:despacito")
+    check("play youtube video of cats", null)
+    check("play something", null)
+    check("turn on wifi", "quick", "wifi:on")
+    check("turn off the wi-fi", "quick", "wifi:off")
+    check("bluetooth on", "quick", "bluetooth:on")
+    check("enable dark mode", "quick", "darkmode:on")
+    check("toggle auto rotate", "quick", "rotate:toggle")
+    check("aeroplane mode off", "quick", "airplane:off")
+    check("turn off sim 1", "quick", "mobiledata:off")
+    check("turn on the flashlight", "quick", "torch:on")
+    check("turn on do not disturb", "quick", "dnd:on")
+    check("enable battery saver", "quick", "powersave:on")
+    check("turn on hotspot", "quick", "hotspot:on")
+    check("press the screen recording tile", "quick", "screenrec:run")
+    check("set ring mode to vibrate", "quick", "ringmode:vibrate")
+    check("put the phone on silent", "quick", "ringmode:silent")
+    check("set text size to large", "quick", "fontsize:large")
+    check("set screen timeout to 2 minutes", "quick", "timeout:2m")
+    check("set media volume to 60", "quick", "mediavol:60")
+    check("set brightness to 40", "quick", "brightness:40")
+    check("clear all notifications", "quick", "clearall:run")
+    check("turn on talkback", "quick", "talkback:on")
+    check("turn off animations", "quick", "noanim:on")
+    check("turn off auto brightness", "quick", "autobright:off")
+    check("turn on the lights", null)
+    check("what is the weather", null)
+    check("click wifi", null)
+    check("turn up the volume", null)
+    println("v13: $passed passed, $failed failed")
+    if (failed > 0) System.exit(1)
+}
