@@ -28,30 +28,4 @@ jobs:
           SDK_ROOT="$HOME/android-sdk"
           mkdir -p "$SDK_ROOT/cmdline-tools"
           curl -sSL -o cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
-          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
-          export ANDROID_HOME="$SDK_ROOT"
-          export PATH="$SDK_ROOT/cmdline-tools/latest/bin:$SDK_ROOT/platform-tools:$PATH"
-          yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses > /dev/null || true
-          sdkmanager --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
-          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
-
-      - name: Fetch sherpa-onnx (speech libraries)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash tools/fetch_sherpa.sh
-
-      - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
-
-      - name: Find APK files
-        run: find . -name "*.apk" -path "*outputs*" || echo "No APK found"
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: pragon-debug-apk
-          path: |
-            **/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          unzip -q cmdtools.zip -d
